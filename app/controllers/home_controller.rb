@@ -21,7 +21,7 @@ class HomeController < ApplicationController
   
   def add_random_instances
     order = next_instance_order
-    for i in 0..3
+    3.times do |i|
       Instance.create([{ name: @@instances[i], order: order + i }])
     end
     redirect_to root_url
@@ -122,7 +122,7 @@ class HomeController < ApplicationController
   def add_basic_messages(id)
     order = next_message_order
     from_to = [[0, 1], [0, 2], [2, 0], [1, 1]]
-    for i in 0..3
+    4.times do |i|
       Message.create([
         { from_id:  id + from_to[i][0], 
           to_id:    id + from_to[i][1], 
