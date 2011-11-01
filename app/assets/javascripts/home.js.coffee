@@ -1,11 +1,12 @@
 MESSSAGE_OFFSET = 40
-MESSSAGE_BODY_OFFSET = -14
-MESSSAGE_SELF_LENGTH = 23
+MESSSAGE_BODY_OFFSET = -18
+MESSSAGE_SELF_WIDTH = 27.5
+MESSSAGE_SELF_HEIGHT = 17
 MESSSAGE_ARROW_WIDTH = 5
-MESSSAGE_ARROW_HEIGHT = -10
+MESSSAGE_ARROW_HEIGHT = -8
 
-INSTANCE_OFFSET = 60
-INSTANCE_WIDTH = 45
+INSTANCE_OFFSET = 40
+INSTANCE_WIDTH = 49 + 20
 INSTANCE_HEIGHT = 30
 
 CANVAS_PADDING = 15
@@ -52,8 +53,8 @@ getSelfMessageRect = (ctx, obj) ->
   pt = getIntersectionPoint(obj.from.order, obj.order)
   result.x1 = pt.x
   result.y1 = pt.y
-  result.x2 = pt.x + MESSSAGE_SELF_LENGTH
-  result.y2 = pt.y + MESSSAGE_SELF_LENGTH
+  result.x2 = pt.x + MESSSAGE_SELF_WIDTH
+  result.y2 = pt.y + MESSSAGE_SELF_HEIGHT
   return result
 
 drawSelfMessagePath = (ctx, rect) ->
@@ -114,6 +115,8 @@ CanvasRenderingContext2D.prototype.drawLine = (x1, y1, x2, y2) ->
 drawMessageArrowhead = (ctx, pt, isHeadLeft) ->
   offsetX = MESSSAGE_ARROW_HEIGHT
   offsetX *= -1 if isHeadLeft
+  ctx.lineCap = "square"
+  ctx.lineJoin = "miter"
   ctx.moveTo(pt.x + offsetX, pt.y - MESSSAGE_ARROW_WIDTH)
   ctx.lineTo(pt.x, pt.y)
   ctx.lineTo(pt.x + offsetX, pt.y + MESSSAGE_ARROW_WIDTH)
