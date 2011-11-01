@@ -67,7 +67,7 @@ drawSelfMessagePath = (ctx, rect) ->
 
 drawNormalMessageLine = (ctx, obj) ->
   rect = getMessageRect(ctx, obj)
-  drawMessageLine(ctx, rect)
+  drawMessageLine(ctx, rect, obj.is_return)
   pt = getIntersectionPoint(obj.to.order, obj.order)
   drawMessageArrowhead(ctx, pt, isHeadLeft(obj))
   pt = getMessageBodyPoint(rect)
@@ -82,12 +82,34 @@ getMessageBodyPoint = (rect) ->
 isHeadLeft = (obj) ->
   obj.to.order <= obj.from.order
 
-drawMessageLine = (ctx, rect) ->
-  ctx.beginPath()
-  ctx.moveTo(rect.x1, rect.y1)
-  ctx.lineTo(rect.x2, rect.y2)
-  ctx.closePath()
-  ctx.stroke()
+drawMessageLine = (ctx, rect, isReturn) ->
+  if isReturn
+    ctx.drawDashedLine(rect.x1, rect.y1, rect.x2, rect.y1)
+  else
+    ctx.drawLine(rect.x1, rect.y1, rect.x2, rect.y1)
+
+CanvasRenderingContext2D.prototype.drawDashedLine = (x1, y1, x2, y2) ->
+  this.moveTo(x1, y1)
+  dX = x2 - x1
+  dY = y2 - y1
+  dashes = Math.floor(Math.sqrt(dX * dX + dY * dY) / 4)
+  dashX = dX / dashes
+  dashY = dY / dashes
+  q = 0
+  while (q++ < dashes)
+    x1 += dashX
+    y1 += dashY
+    if q % 2 == 0
+      this.moveTo(x1, y1)
+    else
+      this.lineTo(x1, y1)
+
+CanvasRenderingContext2D.prototype.drawLine = (x1, y1, x2, y2) ->
+  this.beginPath()
+  this.moveTo(x1, y1)
+  this.lineTo(x2, y2)
+  this.closePath()
+  this.stroke()
 
 drawMessageArrowhead = (ctx, pt, isHeadLeft) ->
   offsetX = MESSSAGE_ARROW_HEIGHT
