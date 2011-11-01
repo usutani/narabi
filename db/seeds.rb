@@ -12,7 +12,7 @@ instances = Instance.create([
   { name: 'Davlid', order: 3 }])
 
 message = Message.create([
-  { from_id: 1, to_id: 2, body: 'foo', order: 0  }, 
-  { from_id: 1, to_id: 3, body: 'bar', order: 1  }, 
-  { from_id: 3, to_id: 1, body: 'baz', order: 2  },
-  { from_id: 2, to_id: 2, body: 'self', order: 3  }])
+  { from_id: 1, to_id: 2, body: 'foo', order: 0, is_return: false}, 
+  { from_id: 1, to_id: 3, body: 'bar', order: 1, is_return: false }, 
+  { from_id: 3, to_id: 1, body: 'baz', order: 2, is_return: true },
+  { from_id: 2, to_id: 2, body: 'self', order: 3, is_return: false }])

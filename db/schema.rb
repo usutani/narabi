@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20111024064825) do
+ActiveRecord::Schema.define(:version => 20111101050931) do
 
   create_table "instances", :force => true do |t|
     t.string   "name"
@@ -27,6 +27,7 @@ ActiveRecord::Schema.define(:version => 20111024064825) do
     t.integer  "order"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.boolean  "is_return"
   end
 
 end

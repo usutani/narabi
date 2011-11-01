@@ -6,6 +6,7 @@
     <th>To</th>
     <th>Body</th>
     <th>Order</th>
+    <th>IsReturn</th>
     <th></th>
     <th></th>
     <th></th>
@@ -17,6 +18,7 @@
     <td><%= message.to.name if message.to %></td>
     <td><%= message.body %></td>
     <td><%= message.order %></td>
+    <td><%= message.is_return %></td>
     <td><%= link_to 'Show', message %></td>
     <td><%= link_to 'Edit', edit_message_path(message) %></td>
     <td><%= link_to 'Destroy', message, confirm: 'Are you sure?', method: :delete %></td>
