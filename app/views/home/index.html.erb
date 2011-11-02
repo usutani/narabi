@@ -1,41 +1,48 @@
-<%= form_tag :action =>"parse_text_area" do %>
-  <div>
-    <%= text_area_tag :source_text, session[:source_text], :size=>"60x10" %> 
+<div id="content">
+  <div id="source">
+  <%= form_tag :action =>"parse_text_area" do %>
+    <div>
+      <%= submit_tag "Show Diagram" %>
+    </div>
+    <div>
+      <%= text_area_tag :source_text, session[:source_text] %> 
+    </div>
+  <% end %>
   </div>
-  <div>
-    <%= submit_tag "Show Diagram" %>
+  <div id="destination">
+    <% if session[:parsed] %>
+    <input type="button" value="Open Image" onClick="openImage()">
+    </br />
+    <canvas id="diagram" width="1000" height="0"></canvas>
+    <% end %>
   </div>
-<% end %>
+</div>
 
-<% if session[:parsed] %>
-<input type="button" value="Open Image" onClick="openImage()">
-</br />
-<canvas id="diagram" width="1000" height="0"></canvas>
-<% end %>
-
-<p>
-Example 1:<br />
-note left of Alice: 123456789012345678901234567890</br />
-Alice->Bob: Authentication Request</br />
-Bob-->Alice: Authentication Response</br />
-<br />
-Example 2:<br />
-Actor->Runner: run</br />
-Runner->Runner: parse_command!</br />
-Runner->Runner: set_cmd</br />
-Runner->User: login</br />
-User->User: login_and_save_token</br />
-User->Client: login</br />
-Client->Client: json_post</br />
-Client->Client: http_post</br />
-Client->Client: request</br />
-Client->Client: perform_http_request</br />
-Client->Request: execute</br />
-</p>
-<p>
-Demo:
-<%= button_to "Clear Diagram", :action =>"delete_all" %>
-<%= button_to "Add Test Items", :action =>"add_test_items" %>
-<%= button_to "Add Random Instances", :action =>"add_random_instances" %>
-<%= button_to "Add Random Messages", :action =>"add_random_messages" %>
-</p>
+<div id="homefooter">
+  <div id="part">
+    Example 1:<br />
+    Actor->Runner: run</br />
+    Runner->Runner: parse_command!</br />
+    Runner->Runner: set_cmd</br />
+    Runner->User: login</br />
+    User->User: login_and_save_token</br />
+    User->Client: login</br />
+    Client->Client: json_post</br />
+    Client->Client: http_post</br />
+    Client->Client: request</br />
+    Client->Client: perform_http_request</br />
+    Client->Request: execute</br />
+  </div>
+  <div id="part">
+    Demo:
+    <%= button_to "Clear Diagram", :action =>"delete_all" %>
+    <%= button_to "Add Test Items", :action =>"add_test_items" %>
+    <%= button_to "Add Random Instances", :action =>"add_random_instances" %>
+    <%= button_to "Add Random Messages", :action =>"add_random_messages" %>
+    <br />
+    Example 2:<br />
+    note left of Alice: 123456789012345678901234567890</br />
+    Alice->Bob: Authentication Request</br />
+    Bob-->Alice: Authentication Response</br />
+  </div>
+</div>
