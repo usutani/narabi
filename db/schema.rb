@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20111101050931) do
+ActiveRecord::Schema.define(:version => 20111101094820) do
 
   create_table "instances", :force => true do |t|
     t.string   "name"
@@ -28,6 +28,7 @@ ActiveRecord::Schema.define(:version => 20111101050931) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.boolean  "is_return"
+    t.boolean  "is_note"
   end
 
 end

@@ -12,7 +12,8 @@ instances = Instance.create([
   { name: 'Davlid', order: 3 }])
 
 message = Message.create([
-  { from_id: 1, to_id: 2, body: 'foo', order: 0, is_return: false}, 
-  { from_id: 1, to_id: 3, body: 'bar', order: 1, is_return: false }, 
-  { from_id: 3, to_id: 1, body: 'baz', order: 2, is_return: true },
-  { from_id: 2, to_id: 2, body: 'self', order: 3, is_return: false }])
+  { from_id: 1, to_id: 1, body: '123456789012345678901234567890', order: 0, is_return: false, is_note: true}, 
+  { from_id: 1, to_id: 2, body: 'foo', order: 1, is_return: false, is_note: false}, 
+  { from_id: 1, to_id: 3, body: 'bar', order: 2, is_return: false, is_note: false }, 
+  { from_id: 3, to_id: 1, body: 'baz', order: 3, is_return: true, is_note: false },
+  { from_id: 2, to_id: 2, body: 'self', order: 4, is_return: false, is_note: false }])

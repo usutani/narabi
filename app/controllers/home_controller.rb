@@ -1,5 +1,5 @@
 class HomeController < ApplicationController
-  @@messages = ["foo", "bar", "baz", "self"]
+  @@messages = ["note", "foo", "bar", "baz", "self"]
   @@instances = ["Alice", "Bob", "David"]
   
   before_filter :has_source_text?, :only => :parse_text_area
@@ -41,7 +41,8 @@ class HomeController < ApplicationController
           to_id:      to, 
           body:       @@messages.sample, 
           order:      order, 
-          is_return:  [true, false].sample }])
+          is_return:  [true, false].sample,
+          is_note:    [true, false].sample }])
       order = order + 1
     end
     redirect_to root_url
@@ -77,18 +78,38 @@ class HomeController < ApplicationController
   end
   
   def parse_instances_and_message(text)
+    # foo...: bar...
     text.strip!
     instances_and_message = text.scan(/[^:]+/)
     return nil if instances_and_message.length != 2
-
-    instances = instances_and_message[0].scan(/[^->\s]+/)
-    return nil if instances.length != 2
-
-    Hash[ 
-      :from => instances[0].strip, 
-      :to => instances[1].strip, 
-      :message => instances_and_message[1].strip, 
-      :is_return => instances_and_message[0].index("-->") != nil]
+    left_side = instances_and_message[0]
+    right_side = instances_and_message[1]
+    
+    # Alice->Bob or Alice-->Bob
+    instances = left_side.scan(/[^->\s]+/)
+    if instances.length == 2
+      return Hash[ 
+        :from => instances[0].strip, 
+        :to => instances[1].strip, 
+        :message => right_side.strip, 
+        :is_return => left_side.index("-->") != nil, 
+        :is_note => false]
+    end
+    
+    # note left of Alice: 123456789012345678901234567890
+    if left_side.index("note") == 0
+      atom = left_side.scan(/[^\s]+/)
+      if atom.length == 4
+        return Hash[ 
+          :from => atom[3].strip, 
+          :to => atom[3].strip, 
+          :message => right_side.strip, 
+          :is_return => false, 
+          :is_note => true]
+      end
+    end
+    
+    return nil 
   end
   
   def create_objects(hash)
@@ -103,7 +124,8 @@ class HomeController < ApplicationController
         to_id:      to.id, 
         body:       hash[:message], 
         order:      next_message_order,
-        is_return:  hash[:is_return] }])
+        is_return:  hash[:is_return], 
+        is_note:    hash[:is_note] }])
   end
   
   def add_basic_instances
@@ -124,14 +146,20 @@ class HomeController < ApplicationController
   
   def add_basic_messages(id)
     order = next_message_order
-    from_to = [[0, 1, false], [0, 2, false], [2, 0, true], [1, 1, false]]
-    4.times do |i|
+    from_to = [
+      [0, 0, false, true], 
+      [0, 1, false, false], 
+      [0, 2, false, false], 
+      [2, 0, true, false], 
+      [1, 1, false, false]]
+    5.times do |i|
       Message.create([
         { from_id:    id + from_to[i][0], 
           to_id:      id + from_to[i][1], 
           body:       @@messages[i], 
           order:      order + i,
-          is_return:  from_to[i][2] }])
+          is_return:  from_to[i][2],
+          is_note:    from_to[i][3] }])
     end
   end
   

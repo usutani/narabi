@@ -6,7 +6,7 @@ MESSSAGE_ARROW_WIDTH = 5
 MESSSAGE_ARROW_HEIGHT = -8
 
 INSTANCE_OFFSET = 40
-INSTANCE_WIDTH = 49 + 20
+INSTANCE_WIDTH = 70
 INSTANCE_HEIGHT = 30
 
 CANVAS_PADDING = 15
@@ -16,7 +16,9 @@ drawMessages = (ctx, messages) ->
 
 drawMessage = (ctx, obj) ->
   return unless checkPresenceOfToFromObjects(obj)
-  if isSelfMessage(obj)
+  if isNote(obj)
+    drawNote(ctx, obj)
+  else if isSelfMessage(obj)
     drawSelfMessageLine(ctx, obj)
   else
     drawNormalMessageLine(ctx, obj)
@@ -27,6 +29,8 @@ checkPresenceOfToFromObjects = (obj) ->
   return true
 
 isSelfMessage = (obj) -> return obj.to is obj.from
+
+isNote = (obj) -> return obj.is_note
 
 drawSelfMessageLine = (ctx, obj) ->
   rect = getSelfMessageRect(ctx, obj)
@@ -65,6 +69,23 @@ drawSelfMessagePath = (ctx, rect) ->
   ctx.lineTo(rect.x1, rect.y2)
   ctx.closePath()
   ctx.stroke()
+
+drawNote = (ctx, obj) ->
+  rect = getMessageRect(ctx, obj)
+  pt = getNoteBodyPoint(rect)
+  drawNoteText(ctx, pt.x, pt.y, obj.body)
+
+getNoteBodyPoint = (rect) ->
+  pt = new Object()
+  pt.x = rect.centerX - INSTANCE_WIDTH / 2
+  pt.y = rect.centerY
+  return pt
+
+drawNoteText = (ctx, x, y, body) ->
+  ctx.font = "12px Sans-Serif"
+  ctx.textAlign = "left"
+  ctx.textBaseline = "top"
+  ctx.fillText(body, x, y)
 
 drawNormalMessageLine = (ctx, obj) ->
   rect = getMessageRect(ctx, obj)
@@ -234,7 +255,8 @@ calcCanvasHeight = (messages) ->
   return height
 
 calcCanvasWidth = (instances) ->
-  width = instances.length * (INSTANCE_WIDTH + INSTANCE_OFFSET)
+  last = _.max(instances, (obj) -> obj.order)
+  width = (last.order + 1) * (INSTANCE_WIDTH + INSTANCE_OFFSET)
   width -= INSTANCE_OFFSET
   width += CANVAS_PADDING * 2
   return width
