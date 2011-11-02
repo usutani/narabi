@@ -98,11 +98,11 @@ class HomeController < ApplicationController
     
     # note left of Alice: 123456789012345678901234567890
     if left_side.index("note") == 0
-      atom = left_side.scan(/[^\s]+/)
-      if atom.length == 4
+      atom = left_side.scan(/[^,\s]+/)
+      if atom.length >= 2
         return Hash[ 
-          :from => atom[3].strip, 
-          :to => atom[3].strip, 
+          :from => atom.last.strip, 
+          :to => atom.last.strip, 
           :message => right_side.strip, 
           :is_return => false, 
           :is_note => true]

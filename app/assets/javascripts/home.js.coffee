@@ -34,11 +34,11 @@ isNote = (obj) -> return obj.is_note
 
 drawSelfMessageLine = (ctx, obj) ->
   rect = getSelfMessageRect(ctx, obj)
+  headPt = getSelfMessageEndPoint(rect)
+  bodyPt = getSelfMessageBodyPoint(rect)
   drawSelfMessagePath(ctx, rect)
-  pt = getSelfMessageEndPoint(rect)
-  drawMessageArrowhead(ctx, pt, true)
-  pt = getSelfMessageBodyPoint(rect)
-  drawMessageText(ctx, pt.x, pt.y, obj.body)
+  drawMessageArrowhead(ctx, headPt, true)
+  drawMessageText(ctx, bodyPt.x, bodyPt.y, obj.body)
 
 getSelfMessageEndPoint = (rect) ->
   pt = new Object()
@@ -82,6 +82,10 @@ getNoteBodyPoint = (rect) ->
   return pt
 
 drawNoteText = (ctx, x, y, body) ->
+  ctx.fillStyle = "rgb(230, 230, 240)"
+  ctx.fillRect(x, y + 3, ctx.measureText(body).width, 10)
+  ctx.fillStyle = "black"
+  
   ctx.font = "12px Sans-Serif"
   ctx.textAlign = "left"
   ctx.textBaseline = "top"
@@ -89,11 +93,11 @@ drawNoteText = (ctx, x, y, body) ->
 
 drawNormalMessageLine = (ctx, obj) ->
   rect = getMessageRect(ctx, obj)
+  headPt = getIntersectionPoint(obj.to.order, obj.order)
+  bodyPt = getMessageBodyPoint(rect)
   drawMessageLine(ctx, rect, obj.is_return)
-  pt = getIntersectionPoint(obj.to.order, obj.order)
-  drawMessageArrowhead(ctx, pt, isHeadLeft(obj))
-  pt = getMessageBodyPoint(rect)
-  drawMessageText(ctx, pt.x, pt.y, obj.body)
+  drawMessageArrowhead(ctx, headPt, isHeadLeft(obj))
+  drawMessageText(ctx, bodyPt.x, bodyPt.y, obj.body)
 
 getMessageBodyPoint = (rect) ->
   pt = new Object()
@@ -144,6 +148,10 @@ drawMessageArrowhead = (ctx, pt, isHeadLeft) ->
   ctx.stroke()
 
 drawMessageText = (ctx, x, y, body) ->
+  width = ctx.measureText(body).width
+  ctx.fillStyle = "white"
+  ctx.fillRect(x - width / 2, y + 3, width, 10)
+  ctx.fillStyle = "black"
   ctx.font = "12px Sans-Serif"
   ctx.textAlign = "center"
   ctx.textBaseline = "top"
