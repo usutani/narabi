@@ -159,28 +159,27 @@ getInstanceRectByOrder = (instances, instanceOrder) ->
 # ------------------------------
 
 this.onload = ->
-  fetchRestObjects("instances.json", instancesDidFetched)
+  this.postRawText()
 
 fetchRestObjects = (uri, callback) ->
-  xhr = new (window.ActiveXObject or XMLHttpRequest)("Microsoft.XMLHTTP")
-  xhr.open "GET", uri, true
-  xhr.overrideMimeType "text/plain" if "overrideMimeType" of xhr
-  xhr.onreadystatechange = ->
-    if xhr.readyState is 4
-      if xhr.status in [0, 200]
-        callback(xhr)
-      else
-        throw new Error "Could not load #{url}"
-  xhr.send null
+  $.ajax({
+    type: "GET",
+    url: uri,
+    dataType: "json",
+    data: null,
+    success: (data) -> 
+      callback(data)
+    })
 
-instancesDidFetched = (xhr) ->
-  window.instances = eval("(" + xhr.responseText + ")")
+instancesDidFetched = (data) ->
+  window.instances = data
   fetchRestObjects("messages.json", messagesDidFetched)
 
-messagesDidFetched = (xhr) ->
-  window.messages = eval("(" + xhr.responseText + ")")
+messagesDidFetched = (data) ->
+  window.messages = data
   setToFromObjects(instances, obj) for obj in window.messages
   drawObjects(window.instances, window.messages)
+  setInfoText("")
 
 setToFromObjects = (instances, message) ->
   message.to = _.find(instances, (obj) -> obj.id is message.to_id)
@@ -189,6 +188,10 @@ setToFromObjects = (instances, message) ->
 drawObjects = (instances, messages) ->
   canvas = document.getElementById("diagram")
   return unless canvas
+  if instances.length is 0
+    canvas.wodth = 0
+    canvas.height = 0
+    return
   ctx = canvas.getContext("2d")
   ctx.font = "12px Sans-Serif"
   addRectToInstances(ctx, instances, messages)
@@ -199,6 +202,7 @@ drawObjects = (instances, messages) ->
   fillBackground(ctx, canvas.width, canvas.height)
   drawInstances(ctx, instances, canvas.height - MESSSAGE_OFFSET - CANVAS_PADDING)
   drawMessages(ctx, messages)
+  disableOpenImageButton(false)
 
 addRectToInstances = (ctx, instances, messages) ->
   first = _.min(instances, (obj) -> obj.order)
@@ -387,8 +391,37 @@ fillBackground = (ctx, width, height) ->
 
 # ------------------------------
 
+disableOpenImageButton = (flag) ->
+  button = document.getElementById("open_button")
+  button.disabled = flag
+
 this.openImage = ->
   canvas = document.getElementById("diagram")
   return unless canvas
   window.open(canvas.toDataURL("image/png"))
   return
+
+# ------------------------------
+
+this.keydown = ->
+  setInfoText("Processing...")
+  clearTimeout(this.timerID)
+
+this.keyup = ->
+  clearTimeout(this.timerID)
+  this.timerID = setTimeout("this.postRawText()", 1000)
+
+this.postRawText = () ->
+  disableOpenImageButton(true)
+  data = "source_text=" + $("#source_text").val()
+  $.ajax({
+    type: "POST",
+    url: "home/parse_text",
+    data: data,
+    success: (data) -> 
+      fetchRestObjects("instances.json", instancesDidFetched)
+    })
+
+setInfoText = (text) ->
+  label = document.getElementById("info_label")
+  label.textContent = text

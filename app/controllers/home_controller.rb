@@ -5,7 +5,6 @@ class HomeController < ApplicationController
   before_filter :has_source_text?, :only => :parse_text_area
   
   def index
-    session[:source_text] ||= "Alice->Bob: Authentication Request\nBob-->Alice: Authentication Response"
   end
   
   def delete_all
@@ -62,7 +61,6 @@ class HomeController < ApplicationController
       redirect_to root_url
       return
     end
-    session[:parsed] = 1
   end
   
   def delete_all_objects
