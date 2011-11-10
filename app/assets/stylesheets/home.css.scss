@@ -1,29 +1,35 @@
-#info {
-  width: 100%;
-  clear: left;
-  padding: 5px;
-  #open_button {
-    float: left;
-  }
-  #info_label {
-    float: left;
-    margin-left: 10px;
-  }
-}
-
 #content {
-  clear: left;
-  #source {
-    #source_text {
-      float: left;
-      margin-top: 10px;
+  #banner {
+    position: fixed;
+    top: 15px;
+    right: 20px;
+    label {
       margin-left: 10px;
+      color: #fff;
+    }
+  }
+  #info {
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    #open_button {
+    }
+    #info_label {
+      margin-left: 10px;
+    }
+  }
+  #source {
+    position: fixed;
+    top: 50px;
+    left: 15px;
+    #source_text {
       width: 300px;
       height: 300px;
       outline: none;
     }
   }
   #destination {
-    margin-left: 320px;
+    margin-top: 50px;
+    margin-left: 330px;
   }
 }

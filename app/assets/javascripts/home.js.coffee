@@ -159,6 +159,8 @@ getInstanceRectByOrder = (instances, instanceOrder) ->
 # ------------------------------
 
 this.onload = ->
+  $("textarea#source_text").focus()
+  setInfoText("Processing...")
   this.postRawText()
 
 fetchRestObjects = (uri, callback) ->
@@ -423,5 +425,4 @@ this.postRawText = () ->
     })
 
 setInfoText = (text) ->
-  label = document.getElementById("info_label")
-  label.textContent = text
+  $("label#info_label").text(text)

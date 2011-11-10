@@ -1,9 +1,12 @@
-<div id="info">
-  <input type="button" id="open_button" disabled value="Preview Image..." onClick="openImage()">
-  <label id="info_label"></label>
-</div>
-
 <div id="content">
+  <div id="banner">
+    <label>About</label>
+    <label>Help</label>
+  </div>
+  <div id="info">
+    <input type="button" id="open_button" disabled value="Preview Image..." onClick="openImage()">
+    <label id="info_label"></label>
+  </div>
   <div id="source">
     <%= text_area_tag :source_text, session[:source_text], :onKeydown => "keydown()", :onKeyup => "keyup()", :placeholder => "Foo->Bar: message" %> 
   </div>
