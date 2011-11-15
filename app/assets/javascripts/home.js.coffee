@@ -188,7 +188,7 @@ setToFromObjects = (instances, message) ->
   message.from = _.find(instances, (obj) -> obj.id is message.from_id)
 
 drawObjects = (instances, messages) ->
-  canvas = document.getElementById("diagram")
+  canvas = $('#diagram')[0]
   return unless canvas
   if instances.length is 0
     canvas.wodth = 0
@@ -394,11 +394,11 @@ fillBackground = (ctx, width, height) ->
 # ------------------------------
 
 disableOpenImageButton = (flag) ->
-  button = document.getElementById("open_button")
+  button = $("input#open_button")[0]
   button.disabled = flag
 
 this.openImage = ->
-  canvas = document.getElementById("diagram")
+  canvas = $('#diagram')[0]
   return unless canvas
   window.open(canvas.toDataURL("image/png"))
   return
@@ -414,15 +414,20 @@ this.keyup = ->
   this.timerID = setTimeout("this.postRawText()", 1000)
 
 this.postRawText = () ->
+  text = "source_text=" + $("#source_text").val()
+  if this.lastRawText is text
+    setInfoText("")
+    return
   disableOpenImageButton(true)
-  data = "source_text=" + $("#source_text").val()
+  
   $.ajax({
     type: "POST",
     url: "home/parse_text",
-    data: data,
+    data: text,
     success: (data) -> 
       fetchRestObjects("instances.json", instancesDidFetched)
     })
+  this.lastRawText = text
 
 setInfoText = (text) ->
   $("label#info_label").text(text)
