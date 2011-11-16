@@ -12,6 +12,11 @@ INSTANCE_HEIGHT = 30
 
 CANVAS_PADDING = 15
 
+fillBackground = (ctx, width, height) ->
+  ctx.fillStyle = "white"
+  ctx.fillRect(0, 0, width, height)
+  ctx.fillStyle = "black"
+
 drawMessages = (ctx, messages) ->
   drawMessage(ctx, obj) for obj in messages
 
@@ -26,11 +31,11 @@ drawMessage = (ctx, obj) ->
 
 drawNote = (ctx, obj) ->
   pt = obj.note.bodyPoint
-  drawNoteText(ctx, pt.x, pt.y, obj.body)
+  drawNoteText(ctx, pt.x, pt.y, obj.rect.bodyWidth, obj.body)
 
-drawNoteText = (ctx, x, y, body) ->
+drawNoteText = (ctx, x, y, width, body) ->
   ctx.fillStyle = "rgb(230, 230, 240)"
-  ctx.fillRect(x, y + 3, ctx.measureText(body).width, 10)
+  ctx.fillRect(x, y + 3, width, 10)
   ctx.fillStyle = "black"
 
   ctx.font = "12px Sans-Serif"
@@ -57,7 +62,7 @@ drawSelfMessageLine = (ctx, obj) ->
   bodyPt = obj.selfMessage.bodyPoint
   drawSelfMessagePath(ctx, obj.selfMessage.rect)
   drawMessageArrowhead(ctx, headPt, true)
-  drawMessageText(ctx, bodyPt.x, bodyPt.y, obj.body)
+  drawMessageText(ctx, bodyPt.x, bodyPt.y, obj.rect.bodyWidth, obj.body)
 
 drawSelfMessagePath = (ctx, rect) ->
   ctx.beginPath()
@@ -73,7 +78,7 @@ drawNormalMessageLine = (ctx, obj) ->
   bodyPt = obj.normalMessage.bodyPoint
   drawMessageLine(ctx, obj.rect, obj.is_return)
   drawMessageArrowhead(ctx, headPt, isHeadLeft(obj))
-  drawMessageText(ctx, bodyPt.x, bodyPt.y, obj.body)
+  drawMessageText(ctx, bodyPt.x, bodyPt.y, obj.rect.bodyWidth, obj.body)
 
 isHeadLeft = (obj) ->
   obj.to.order <= obj.from.order
@@ -117,8 +122,7 @@ drawMessageArrowhead = (ctx, pt, isHeadLeft) ->
   ctx.lineTo(pt.x + offsetX, pt.y + MESSSAGE_ARROW_WIDTH)
   ctx.stroke()
 
-drawMessageText = (ctx, x, y, body) ->
-  width = ctx.measureText(body).width
+drawMessageText = (ctx, x, y, width, body) ->
   ctx.fillStyle = "white"
   ctx.fillRect(x - width / 2, y , width, 12)
   ctx.fillStyle = "black"
@@ -198,84 +202,22 @@ drawObjects = (instances, messages) ->
   ctx.font = "12px Sans-Serif"
   addRectToInstances(ctx, instances, messages)
   addRectToMessages(ctx, instances, messages)
+  offset = getOffset(instances, messages)
+  shiftRectsForMergin(offset.left, instances, messages)
   canvas.height = calcCanvasHeight(messages)
-  ctx.font = "12px Sans-Serif"
-  canvas.width = calcCanvasWidth(ctx, instances)
+  canvas.width = offset.right
   fillBackground(ctx, canvas.width, canvas.height)
   drawInstances(ctx, instances, canvas.height - MESSSAGE_OFFSET - CANVAS_PADDING)
   drawMessages(ctx, messages)
   disableOpenImageButton(false)
 
+# ------------------------------
+
 addRectToInstances = (ctx, instances, messages) ->
-  first = _.min(instances, (obj) -> obj.order)
-  x = CANVAS_PADDING + getInstanceMargin(ctx, instances, messages, first)
+  x = 0
   for obj in instances
     obj.rect = createInstanceRect(ctx, x, obj)
     x += Math.round(obj.rect.width + INSTANCE_OFFSET)
-
-getInstanceMargin = (ctx, instances, messages, instance) ->
-  return 0 unless instance?
-  
-  # TODO noteBodyMargin
-  normalBodyMargin = getMaxNormalBodyMargin(ctx, instance)
-  selfBodyMargin = getMaxSelfBodyMargin(ctx, instance)
-  bodyMargin = Math.max(normalBodyMargin, selfBodyMargin)
-  
-  nameWidth1 = roundInstanceWidth(ctx, instance.name)
-  nameMargin = nameWidth1 / 2
-  gap = Math.round(bodyMargin - nameMargin)
-  return gap if gap > 0
-  
-  return 0
-
-getMaxSelfBodyMargin = (ctx, instance) ->
-  message = _.max(messages, (obj) -> getRelatedSelfBodyWidth(ctx, instance, obj))
-  return 0 unless isValidMessage(message)
-  return 0 unless isSelfMessage(message)
-  return 0 if isNote(message)
-  return 0 unless message.from is instance
-  
-  bodyWidth = ctx.measureText(message.body).width
-  return bodyWidth / 2
-
-getRelatedSelfBodyWidth = (ctx, instance, message) ->
-  return 0 unless message.from is instance
-  return 0 unless isSelfMessage(message)
-  
-  bodyWidth = ctx.measureText(message.body).width
-  return bodyWidth / 2
-
-getMaxNormalBodyMargin = (ctx, instance1) ->
-  message = _.max(messages, (obj) -> getRelatedBodyWidth(ctx, instance1, obj))
-  return 0 unless isValidMessage(message)
-  
-  instance2 = message.to
-  return 0 unless instance2?
-  
-  nameWidth1 = roundInstanceWidth(ctx, instance1.name)
-  nameWidth2 = roundInstanceWidth(ctx, instance2.name)
-  
-  distance = nameWidth1 / 2 + nameWidth2 / 2 + INSTANCE_OFFSET
-  bodyWidth = ctx.measureText(message.body).width
-  return bodyWidth / 2 - distance / 2
-
-getRelatedBodyWidth = (ctx, instance1, message) ->
-  return 0 if isSelfMessage(message)
-  
-  if message.from is instance1
-    instance2 = message.to
-  else if message.to is instance1
-    instance2 = message.from
-  else
-    return 0
-  return 0 unless instance2?
-  
-  nameWidth1 = roundInstanceWidth(ctx, instance1.name)
-  nameWidth2 = roundInstanceWidth(ctx, instance2.name)
-  
-  distance = nameWidth1 / 2 + nameWidth2 / 2 + INSTANCE_OFFSET
-  bodyWidth = ctx.measureText(message.body).width
-  return bodyWidth
 
 createInstanceRect = (ctx, x, obj) ->
   rect = new Object()
@@ -312,7 +254,8 @@ createMessageRect = (ctx, instances, obj) ->
   rect.y2 = pt.y
   rect.centerX = getMiddlePos(rect.x1, rect.x2)
   rect.centerY = getMiddlePos(rect.y1, rect.y2)
-  obj.rect = rect
+  rect.bodyWidth = ctx.measureText(obj.body).width
+  return rect
 
 createIntersectionPoint = (instances, instanceOrder, messageOrder) ->
   result = new Object()
@@ -372,24 +315,57 @@ createNormalMessage = (instances, obj) ->
   result.bodyPoint = createMessageBodyPoint(obj.rect)
   return result
 
+getOffset = (instances, messages) ->
+  left = 0
+  right = 0
+  
+  for obj in messages
+    halfWidth = obj.rect.bodyWidth / 2
+    left = Math.min(left, obj.rect.centerX - halfWidth) unless isNote(obj)
+    if isNote(obj)
+      iw =  obj.from.rect.width / 2
+      right = Math.max(right, obj.rect.centerX + obj.rect.bodyWidth - iw)
+    else
+      right = Math.max(right, obj.rect.centerX + halfWidth)
+  
+  last = _.max(instances, (obj) -> obj.order)
+  right = Math.max(right, last.rect.x + last.rect.width) if last?
+  
+  left = - Math.round(left - CANVAS_PADDING)
+  right = Math.round(left + right + CANVAS_PADDING)
+  return {left: left, right:right}
+
+shiftRectsForMergin = (dx, instances, messages) ->
+  shiftInstanceRects(instances, dx)
+  shiftMessageRects(messages, dx)
+
+shiftInstanceRects = (instances, dx) ->
+  for obj in instances
+    obj.rect.x += dx
+    obj.rect.centerX += dx
+
+shiftMessageRects = (messages, dx) ->
+  for obj in messages
+    obj.rect.x1 += dx
+    obj.rect.x2 += dx
+    obj.rect.centerX += dx
+    if obj.note?
+      obj.note.bodyPoint.x += dx
+    if obj.selfMessage?
+      obj.selfMessage.headPoint.x += dx
+      obj.selfMessage.bodyPoint.x += dx
+      obj.selfMessage.rect.x1 += dx
+      obj.selfMessage.rect.x2 += dx
+    if obj.normalMessage?
+      obj.normalMessage.headPoint.x += dx
+      obj.normalMessage.bodyPoint.x += dx
+
 calcCanvasHeight = (messages) ->
   last = _.max(messages, (obj) -> obj.order)
   return unless last?
   height = INSTANCE_HEIGHT + MESSSAGE_OFFSET * (last.order + 2)
   height += CANVAS_PADDING * 2
   return height
-
-calcCanvasWidth = (ctx, instances) ->
-  last = _.max(instances, (obj) -> obj.order)
-  return unless last?
-  x = getInstanceMargin(ctx, instances, messages, last)
-  width = CANVAS_PADDING * 2 + last.rect.x + last.rect.width + x
-  return width
-
-fillBackground = (ctx, width, height) ->
-  ctx.fillStyle = "white"
-  ctx.fillRect(0, 0, width, height)
-  ctx.fillStyle = "black"
 
 # ------------------------------
 
