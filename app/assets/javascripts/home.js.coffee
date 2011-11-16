@@ -163,7 +163,8 @@ getInstanceRectByOrder = (instances, instanceOrder) ->
 # ------------------------------
 
 this.onload = ->
-  $("textarea#source_text").focus()
+  disableSnippetButtons()
+  $("#source_text").focus()
   setInfoText("Processing...")
   this.postRawText()
 
@@ -209,7 +210,7 @@ drawObjects = (instances, messages) ->
   fillBackground(ctx, canvas.width, canvas.height)
   drawInstances(ctx, instances, canvas.height - MESSSAGE_OFFSET - CANVAS_PADDING)
   drawMessages(ctx, messages)
-  disableOpenImageButton(false)
+  disableButtons(false)
 
 # ------------------------------
 
@@ -369,15 +370,52 @@ calcCanvasHeight = (messages) ->
 
 # ------------------------------
 
-disableOpenImageButton = (flag) ->
-  button = $("input#open_button")[0]
-  button.disabled = flag
+disableButtons = (flag) ->
+  button1 = $("input#open_button")[0]
+  button1.disabled = flag
 
 this.openImage = ->
   canvas = $('#diagram')[0]
   return unless canvas
   window.open(canvas.toDataURL("image/png"))
-  return
+
+# ------------------------------
+
+this.appendSnippet = (index) ->
+  key = snippetIndex2key(index)
+  text = localStorage.getItem(key)
+  text ?= ""
+  return if text.length is 0
+  $("#source_text").val($("#source_text").val() + text)
+  $("#source_text").focus()
+  setInfoText("Processing...")
+  this.postRawText()
+
+this.saveSnippet = ->
+  index = $('#snippet_no option:selected').val()
+  key = snippetIndex2key(index)
+  text = $("#source_text").val()
+  if text.length is 0
+    return unless window.confirm("Are you sure you want to empty snippet?")
+    localStorage.removeItem(key)
+    disableSnippetButton(key, true)
+  else
+    return unless window.confirm("Are you sure you want to save text to snippet?")
+    localStorage.setItem(key, text)
+    disableSnippetButton(key, false)
+
+snippetIndex2key = (index) -> "snippet" + eval(index)
+
+disableSnippetButtons = ->
+  for i in [0..4]
+    key = snippetIndex2key(i)
+    text = localStorage.getItem(key)
+    text ?= ""
+    disableSnippetButton(key, text.length is 0)
+
+disableSnippetButton = (key, flag) ->
+  button = $("input#" + key)[0]
+  button.disabled = flag
 
 # ------------------------------
 
@@ -394,7 +432,7 @@ this.postRawText = () ->
   if this.lastRawText is text
     setInfoText("")
     return
-  disableOpenImageButton(true)
+  disableButtons(true)
   
   $.ajax({
     type: "POST",

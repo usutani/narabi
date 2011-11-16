@@ -3,7 +3,7 @@
     position: fixed;
     top: 15px;
     right: 20px;
-    label {
+    #label {
       margin-left: 10px;
       color: #fff;
     }
@@ -12,7 +12,17 @@
     position: fixed;
     top: 15px;
     left: 15px;
+    #snippet {
+      margin-left: 0px;
+    }
+    #save_snippet_butoon {
+      margin-left: 15px;
+    }
+    #snippet_no{
+      margin-left: 0px;
+    }
     #open_button {
+      margin-left: 25px;
     }
     #info_label {
       margin-left: 10px;

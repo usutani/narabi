@@ -1,9 +1,25 @@
 <div id="content">
   <div id="banner">
-    <label>About</label>
-    <label>Help</label>
+    <span id="label">About</span>
+    <span id="label">Help</span>
   </div>
   <div id="info">
+    <span id="snippet">
+      <sapn>Snippet:</span>
+      <input type="button" id="snippet0" value="1" onClick="appendSnippet(0)">
+      <input type="button" id="snippet1" value="2" onClick="appendSnippet(1)">
+      <input type="button" id="snippet2" value="3" onClick="appendSnippet(2)">
+      <input type="button" id="snippet3" value="4" onClick="appendSnippet(3)">
+      <input type="button" id="snippet4" value="5" onClick="appendSnippet(4)">
+    </span>
+    <input type="button" id="save_snippet_butoon" value="Save to" onClick="saveSnippet()">
+    <select name="snippet_no" id="snippet_no">
+      <option value="0">Snippet 1</option>
+      <option value="1">Snippet 2</option>
+      <option value="2">Snippet 3</option>
+      <option value="3">Snippet 4</option>
+      <option value="4">Snippet 5</option>
+    </select>
     <input type="button" id="open_button" disabled value="Preview Image..." onClick="openImage()">
     <label id="info_label"></label>
   </div>
