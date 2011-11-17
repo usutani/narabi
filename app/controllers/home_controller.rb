@@ -69,48 +69,54 @@ class HomeController < ApplicationController
   end
   
   def parse_text(text)
-    text.each_line { |line|
-      hash = parse_instances_and_message line
-      create_objects(hash) if hash
-    }
+    text.each_line { |line| parse_instances_and_message line }
   end
   
   def parse_instances_and_message(text)
-    # foo...: bar...
     text.strip!
-    instances_and_message = text.scan(/[^:]+/)
-    return nil if instances_and_message.length != 2
-    left_side = instances_and_message[0]
-    right_side = instances_and_message[1]
     
-    # Alice->Bob or Alice-->Bob
-    instances = left_side.scan(/[^->\s]+/)
-    if instances.length == 2
-      return Hash[ 
-        :from => instances[0].strip, 
-        :to => instances[1].strip, 
-        :message => right_side.strip, 
-        :is_return => left_side.index("-->") != nil, 
-        :is_note => false]
+    # participant Bob
+    if text.index("participant") == 0
+      atom = text.scan(/[^\s]+/)
+      return unless atom.length == 2
+      to = Instance.find_or_create_by_name(atom.last.strip)
+      to.order ||= next_instance_order
+      to.save
+      return
     end
+    
+    pos = text.index(":")
+    return if pos == nil
+    left_side = text[0, pos]
+    right_side = text[pos + 1, text.length - pos - 1]
     
     # note left of Alice: 123456789012345678901234567890
     if left_side.index("note") == 0
       atom = left_side.scan(/[^,\s]+/)
-      if atom.length >= 2
-        return Hash[ 
-          :from => atom.last.strip, 
-          :to => atom.last.strip, 
-          :message => right_side.strip, 
-          :is_return => false, 
-          :is_note => true]
-      end
+      return if atom.length < 2
+      create_instances_and_message(
+        :from => atom.last.strip, 
+        :to => atom.last.strip, 
+        :message => right_side.strip, 
+        :is_return => false, 
+        :is_note => true)
+      return
     end
     
-    return nil 
+    # Alice->Bob or Alice-->Bob
+    instances = left_side.scan(/[^->\s]+/)
+    if instances.length == 2
+      create_instances_and_message(
+        :from => instances[0].strip, 
+        :to => instances[1].strip, 
+        :message => right_side.strip, 
+        :is_return => left_side.index("-->") != nil, 
+        :is_note => false)
+      return
+    end
   end
   
-  def create_objects(hash)
+  def create_instances_and_message(hash)
     from = Instance.find_or_create_by_name(hash[:from])
     from.order ||= next_instance_order
     from.save
