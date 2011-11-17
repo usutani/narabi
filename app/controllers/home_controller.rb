@@ -75,8 +75,8 @@ class HomeController < ApplicationController
   def parse_instances_and_message(text)
     text.strip!
     
-    # participant Bob
-    if text.index("participant") == 0
+    # instance Foo
+    if text.index("instance") == 0
       atom = text.scan(/[^\s]+/)
       return unless atom.length == 2
       to = Instance.find_or_create_by_name(atom.last.strip)
@@ -90,7 +90,7 @@ class HomeController < ApplicationController
     left_side = text[0, pos]
     right_side = text[pos + 1, text.length - pos - 1]
     
-    # note left of Alice: 123456789012345678901234567890
+    # note left of Bar: 123456789012345678901234567890
     if left_side.index("note") == 0
       atom = left_side.scan(/[^,\s]+/)
       return if atom.length < 2
@@ -103,7 +103,7 @@ class HomeController < ApplicationController
       return
     end
     
-    # Alice->Bob or Alice-->Bob
+    # Foo->Bar or Foo-->Bar
     instances = left_side.scan(/[^->\s]+/)
     if instances.length == 2
       create_instances_and_message(
