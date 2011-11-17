@@ -1,0 +1,23 @@
+<div id="content">
+  <div id="banner">
+    <%= link_to "Back to Home", root_path, :id => "navigation" %>
+  </div>
+</div>
+
+<h2>Messages</h2>
+<p>
+  <code><pre>note User: This is a note.
+User->System: Login Request
+System-->User: Response
+User->User: message to self.</code></pre>
+</p>
+
+<h2>Changing the order of instances</h2>
+<p>
+  <code><pre>instance User
+instance System
+
+note System: This is a note.
+User->System: Login Request
+System->User: Response</code></pre>
+</p>
