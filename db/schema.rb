@@ -16,8 +16,8 @@ ActiveRecord::Schema.define(:version => 20111101094820) do
   create_table "instances", :force => true do |t|
     t.string   "name"
     t.integer  "order"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
   end
 
   create_table "messages", :force => true do |t|
@@ -25,8 +25,8 @@ ActiveRecord::Schema.define(:version => 20111101094820) do
     t.integer  "to_id"
     t.string   "body"
     t.integer  "order"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
     t.boolean  "is_return"
     t.boolean  "is_note"
   end
