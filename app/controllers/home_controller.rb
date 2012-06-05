@@ -85,24 +85,17 @@ class HomeController < ApplicationController
       return
     end
 
+    # note Foo: 123456789012345678901234567890
+    if note = Narabi::Message.create_note(text)
+      create_instances_and_message(note)
+      return
+    end
+
     pos = text.index(":")
     return if pos == nil
     left_side = text[0, pos]
     right_side = text[pos + 1, text.length - pos - 1]
-    
-    # note left of Bar: 123456789012345678901234567890
-    if left_side.index("note") == 0
-      atom = left_side.scan(/[^,\s]+/)
-      return if atom.length < 2
-      create_instances_and_message(
-        :from => atom.last.strip, 
-        :to => atom.last.strip, 
-        :message => right_side.strip, 
-        :is_return => false, 
-        :is_note => true)
-      return
-    end
-    
+
     # Foo->Bar or Foo-->Bar
     instances = left_side.scan(/[^->\s]+/)
     if instances.length == 2
