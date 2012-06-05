@@ -77,7 +77,6 @@ class HomeController < ApplicationController
   def parse_instances_and_message(text)
     text.strip!
 
-    # instance Foo
     if instance = Narabi::Instance.parse_line(text)
       to = Instance.find_or_create_by_name(instance[:name].strip)
       to.order ||= next_instance_order
@@ -85,30 +84,12 @@ class HomeController < ApplicationController
       return
     end
 
-    # note Foo: 123456789012345678901234567890
-    if note = Narabi::Message.create_note(text)
-      create_instances_and_message(note)
-      return
-    end
-
-    pos = text.index(":")
-    return if pos == nil
-    left_side = text[0, pos]
-    right_side = text[pos + 1, text.length - pos - 1]
-
-    # Foo->Bar or Foo-->Bar
-    instances = left_side.scan(/[^->\s]+/)
-    if instances.length == 2
-      create_instances_and_message(
-        :from => instances[0].strip, 
-        :to => instances[1].strip, 
-        :message => right_side.strip, 
-        :is_return => left_side.index("-->") != nil, 
-        :is_note => false)
+    if instances = Narabi.parse_line(text)
+      create_instances_and_message(instances)
       return
     end
   end
-  
+
   def create_instances_and_message(hash)
     from = Instance.find_or_create_by_name(hash[:from])
     from.order ||= next_instance_order
@@ -119,7 +100,7 @@ class HomeController < ApplicationController
     Message.create([
       { from_id:    from.id, 
         to_id:      to.id, 
-        body:       hash[:message], 
+        body:       hash[:body], 
         order:      next_message_order,
         is_return:  hash[:is_return], 
         is_note:    hash[:is_note] }])
