@@ -1,3 +1,5 @@
+require 'narabi/parser'
+
 class HomeController < ApplicationController
   @@messages = ["note", "foo", "bar", "baz", "self"]
   @@instances = ["Alice", "Bob", "David"]
@@ -71,20 +73,18 @@ class HomeController < ApplicationController
   def parse_text(text)
     text.each_line { |line| parse_instances_and_message line }
   end
-  
+
   def parse_instances_and_message(text)
     text.strip!
-    
+
     # instance Foo
-    if text.index("instance") == 0
-      atom = text.scan(/[^\s]+/)
-      return unless atom.length == 2
-      to = Instance.find_or_create_by_name(atom.last.strip)
+    if instance = Narabi::Instance.parse_line(text)
+      to = Instance.find_or_create_by_name(instance[:name].strip)
       to.order ||= next_instance_order
       to.save
       return
     end
-    
+
     pos = text.index(":")
     return if pos == nil
     left_side = text[0, pos]
