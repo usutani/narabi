@@ -30,7 +30,7 @@ end
 #gem 'jquery-rails'
 gem 'cloudfoundry-jquery-rails'
 gem 'backbone-rails'
-gem 'narabi', '0.0.2'
+gem 'narabi', '0.0.3'
 
 # To use ActiveModel has_secure_password
 # gem 'bcrypt-ruby', '~> 3.0.0'
