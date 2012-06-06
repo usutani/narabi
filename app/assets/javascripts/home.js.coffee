@@ -10,12 +10,25 @@ INSTANCE_PADDING = 10
 INSTANCE_WIDTH = 70
 INSTANCE_HEIGHT = 30
 
-CANVAS_PADDING = 15
+CANVAS_PADDING = 25
+
+# ------------------------------
 
 fillBackground = (ctx, width, height) ->
   ctx.fillStyle = "white"
   ctx.fillRect(0, 0, width, height)
   ctx.fillStyle = "black"
+
+drawDiagramInfo = (ctx, info) ->
+  return unless info
+  return unless info.title
+  ctx.fillStyle = "black"
+  ctx.font = "12px Sans-Serif"
+  ctx.textAlign = "left"
+  ctx.textBaseline = "top"
+  ctx.fillText(info.title, 0, 0)
+
+# ------------------------------
 
 drawMessages = (ctx, messages) ->
   drawMessage(ctx, obj) for obj in messages
@@ -178,6 +191,10 @@ fetchRestObjects = (uri, callback) ->
       callback(data)
     })
 
+diagramsDidFetched = (data) ->
+  window.diagramInfo = _.first(data)
+  fetchRestObjects("instances.json", instancesDidFetched)
+
 instancesDidFetched = (data) ->
   window.instances = data
   fetchRestObjects("messages.json", messagesDidFetched)
@@ -185,14 +202,14 @@ instancesDidFetched = (data) ->
 messagesDidFetched = (data) ->
   window.messages = data
   setToFromObjects(instances, obj) for obj in window.messages
-  drawObjects(window.instances, window.messages)
+  drawObjects(window.diagramInfo, window.instances, window.messages)
   setInfoText("")
 
 setToFromObjects = (instances, message) ->
   message.to = _.find(instances, (obj) -> obj.id is message.to_id)
   message.from = _.find(instances, (obj) -> obj.id is message.from_id)
 
-drawObjects = (instances, messages) ->
+drawObjects = (diagramInfo, instances, messages) ->
   canvas = $('#diagram')[0]
   return unless canvas
   if instances.length is 0
@@ -208,6 +225,7 @@ drawObjects = (instances, messages) ->
   canvas.height = calcCanvasHeight(messages)
   canvas.width = offset.right
   fillBackground(ctx, canvas.width, canvas.height)
+  drawDiagramInfo(ctx, diagramInfo)
   drawInstances(ctx, instances, canvas.height - MESSSAGE_OFFSET - CANVAS_PADDING)
   drawMessages(ctx, messages)
   disableButtons(false)
@@ -439,7 +457,7 @@ this.postRawText = () ->
     url: "home/parse_text",
     data: text,
     success: (data) -> 
-      fetchRestObjects("instances.json", instancesDidFetched)
+      fetchRestObjects("diagrams.json", diagramsDidFetched)
     })
   this.lastRawText = text
 
