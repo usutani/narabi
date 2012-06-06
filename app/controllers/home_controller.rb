@@ -30,6 +30,7 @@ class HomeController < ApplicationController
   def delete_all_objects
     Instance.delete_all
     Message.delete_all
+    Diagram.delete_all
   end
 
   def parse_text(text)
@@ -48,6 +49,12 @@ class HomeController < ApplicationController
 
     if instances = Narabi.parse_line(text)
       create_instances_and_message(instances)
+      return
+    end
+
+    if diagram = Narabi::Diagram.parse_line(text)
+      obj = Diagram.find_or_create_by_title(diagram[:title].strip)
+      obj.save
       return
     end
   end

@@ -1,0 +1,23 @@
+<h1>Listing diagrams</h1>
+
+<table>
+  <tr>
+    <th>Title</th>
+    <th></th>
+    <th></th>
+    <th></th>
+  </tr>
+
+<% @diagrams.each do |diagram| %>
+  <tr>
+    <td><%= diagram.title %></td>
+    <td><%= link_to 'Show', diagram %></td>
+    <td><%= link_to 'Edit', edit_diagram_path(diagram) %></td>
+    <td><%= link_to 'Destroy', diagram, confirm: 'Are you sure?', method: :delete %></td>
+  </tr>
+<% end %>
+</table>
+
+<br />
+
+<%= link_to 'New Diagram', new_diagram_path %>
