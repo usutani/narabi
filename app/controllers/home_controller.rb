@@ -22,15 +22,7 @@ class HomeController < ApplicationController
   private
 
   def prepare_diagram
-    current_diagram
-  end
-
-  def current_diagram
-    Diagram.find_or_create_by_mark(pseudo_user_id)
-  end
-
-  def pseudo_user_id
-    request.session_options[:id]
+    Diagram.current(request)
   end
 
   def has_source_text?
@@ -41,11 +33,9 @@ class HomeController < ApplicationController
   end
 
   def delete_all_objects
-    #TODO Instance.where(diagram_id: current_diagram.id).delete_all
-    Instance.delete_all
+    Diagram.current(request).instances.delete
     Message.delete_all
-    #TODO Diagram.where(id: current_diagram.id).delete_all
-    Diagram.delete_all
+    Diagram.current(request).delete
   end
 
   def parse_text(text)
@@ -66,7 +56,7 @@ class HomeController < ApplicationController
     end
 
     if diagram = Narabi::Diagram.parse_line(text)
-      obj = current_diagram
+      obj = Diagram.current(request)
       obj.title = diagram[:title].strip
       obj.save
       return
@@ -75,8 +65,8 @@ class HomeController < ApplicationController
 
   def create_instance(name)
     obj = Instance.find_or_create_by_name(name)
-    #TODO obj.diagram_id = current_diagram.id
-    obj.order ||= next_instance_order
+    obj.diagram = Diagram.current(request)
+    obj.order ||= Instance.next_order(request)
     obj.save
     obj
   end
@@ -91,15 +81,6 @@ class HomeController < ApplicationController
         order:      next_message_order,
         is_return:  hash[:is_return],
         is_note:    hash[:is_note] })
-  end
-
-  def next_instance_order
-    if Instance.count > 0
-      #TODO Instance.where(diagram_id: current_diagram.id).maximum(:order) + 1
-      Instance.last.order + 1
-    else
-      0
-    end
   end
 
   def next_message_order

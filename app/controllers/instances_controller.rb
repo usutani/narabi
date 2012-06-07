@@ -2,7 +2,7 @@ class InstancesController < ApplicationController
   # GET /instances
   # GET /instances.json
   def index
-    @instances = Instance.all
+    @instances = Diagram.current(request).instances
 
     respond_to do |format|
       format.html # index.html.erb
