@@ -33,9 +33,11 @@ class HomeController < ApplicationController
   end
 
   def delete_all_objects
-    Diagram.current(request).instances.delete
-    Message.delete_all
-    Diagram.current(request).delete
+    #TODO
+    id = Diagram.current(request).id
+    Instance.where(diagram_id: id).delete_all
+    Message.where(diagram_id: id).delete_all
+    Diagram.where(id: id).delete_all
   end
 
   def parse_text(text)
@@ -74,20 +76,16 @@ class HomeController < ApplicationController
   def create_instances_and_message(hash)
     from = create_instance(hash[:from])
     to = create_instance(hash[:to])
-    Message.create(
-      { from_id:    from.id,
+    #TODO
+    obj = Message.create!({
+        from_id:    from.id,
         to_id:      to.id,
         body:       hash[:body],
-        order:      next_message_order,
+        order:      Message.next_order(request),
         is_return:  hash[:is_return],
         is_note:    hash[:is_note] })
-  end
-
-  def next_message_order
-    if Message.count > 0
-      Message.last.order + 1
-    else
-      0
-    end
+    obj.diagram = Diagram.current(request)
+    obj.save
+    obj
   end
 end

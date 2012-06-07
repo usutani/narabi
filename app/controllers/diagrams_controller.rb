@@ -3,7 +3,9 @@ class DiagramsController < ApplicationController
   # GET /diagrams
   # GET /diagrams.json
   def index
-    @diagrams = Diagram.all
+    #TODO
+    @diagrams = [Diagram.current(request)]
+    #@diagrams = Diagram.all
 
     respond_to do |format|
       format.html # index.html.erb

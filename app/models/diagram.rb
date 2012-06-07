@@ -1,5 +1,7 @@
 class Diagram < ActiveRecord::Base
   has_many :instances
+  has_many :messages
+
   attr_accessible :title
 
   def self.current(request)

@@ -3,7 +3,8 @@ class Instance < ActiveRecord::Base
   has_many :messages
 
   validates :name, :order, :presence => true
-  validates :order, :uniqueness => true
+  #TODO
+  #validates :order, :uniqueness => true
 
   def self.next_order(request)
     ci = Diagram.current(request).instances
