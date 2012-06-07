@@ -1,6 +1,7 @@
 require 'narabi/parser'
 
 class HomeController < ApplicationController
+  before_filter :prepare_diagram
   before_filter :has_source_text?, :only => :parse_text_area
 
   def index
@@ -20,6 +21,18 @@ class HomeController < ApplicationController
 
   private
 
+  def prepare_diagram
+    current_diagram
+  end
+
+  def current_diagram
+    Diagram.find_or_create_by_mark(pseudo_user_id)
+  end
+
+  def pseudo_user_id
+    request.session_options[:id]
+  end
+
   def has_source_text?
     unless params[:source_text]
       redirect_to root_url
@@ -28,8 +41,10 @@ class HomeController < ApplicationController
   end
 
   def delete_all_objects
+    #TODO Instance.where(diagram_id: current_diagram.id).delete_all
     Instance.delete_all
     Message.delete_all
+    #TODO Diagram.where(id: current_diagram.id).delete_all
     Diagram.delete_all
   end
 
@@ -41,9 +56,7 @@ class HomeController < ApplicationController
     text.strip!
 
     if instance = Narabi::Instance.parse_line(text)
-      to = Instance.find_or_create_by_name(instance[:name].strip)
-      to.order ||= next_instance_order
-      to.save
+      create_instance(instance[:name].strip)
       return
     end
 
@@ -53,19 +66,24 @@ class HomeController < ApplicationController
     end
 
     if diagram = Narabi::Diagram.parse_line(text)
-      obj = Diagram.find_or_create_by_title(diagram[:title].strip)
+      obj = current_diagram
+      obj.title = diagram[:title].strip
       obj.save
       return
     end
   end
 
+  def create_instance(name)
+    obj = Instance.find_or_create_by_name(name)
+    #TODO obj.diagram_id = current_diagram.id
+    obj.order ||= next_instance_order
+    obj.save
+    obj
+  end
+
   def create_instances_and_message(hash)
-    from = Instance.find_or_create_by_name(hash[:from])
-    from.order ||= next_instance_order
-    from.save
-    to = Instance.find_or_create_by_name(hash[:to])
-    to.order ||= next_instance_order
-    to.save
+    from = create_instance(hash[:from])
+    to = create_instance(hash[:to])
     Message.create(
       { from_id:    from.id,
         to_id:      to.id,
@@ -76,7 +94,8 @@ class HomeController < ApplicationController
   end
 
   def next_instance_order
-    if Instance.count > 0 then
+    if Instance.count > 0
+      #TODO Instance.where(diagram_id: current_diagram.id).maximum(:order) + 1
       Instance.last.order + 1
     else
       0
@@ -84,7 +103,7 @@ class HomeController < ApplicationController
   end
 
   def next_message_order
-    if Message.count > 0 then
+    if Message.count > 0
       Message.last.order + 1
     else
       0
