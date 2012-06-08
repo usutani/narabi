@@ -4,8 +4,6 @@ class Message < ActiveRecord::Base
   belongs_to :to, :class_name => 'Instance', :foreign_key => 'to_id'
 
   validates :from, :to, :order, :presence => true
-  #TODO
-  #validates :order, :uniqueness => true
 
   def self.next_order(request)
     obj = Diagram.current(request).messages

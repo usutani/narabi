@@ -2,9 +2,7 @@ class MessagesController < ApplicationController
   # GET /messages
   # GET /messages.json
   def index
-    #TODO
     @messages = Diagram.current(request).messages
-    #@messages = Message.all
 
     respond_to do |format|
       format.html # index.html.erb

@@ -33,7 +33,6 @@ class HomeController < ApplicationController
   end
 
   def delete_all_objects
-    #TODO
     id = Diagram.current(request).id
     Instance.where(diagram_id: id).delete_all
     Message.where(diagram_id: id).delete_all
@@ -66,26 +65,28 @@ class HomeController < ApplicationController
   end
 
   def create_instance(name)
-    obj = Instance.find_or_create_by_name(name)
-    obj.diagram = Diagram.current(request)
+    current_diagram = Diagram.current(request)
+    obj = current_diagram.instances.where(name: name).first
+    unless obj
+      obj = Instance.create
+      obj.diagram = current_diagram
+      obj.name = name
+    end
     obj.order ||= Instance.next_order(request)
-    obj.save
+    obj.save!
     obj
   end
 
   def create_instances_and_message(hash)
-    from = create_instance(hash[:from])
-    to = create_instance(hash[:to])
-    #TODO
-    obj = Message.create!({
-        from_id:    from.id,
-        to_id:      to.id,
-        body:       hash[:body],
-        order:      Message.next_order(request),
-        is_return:  hash[:is_return],
-        is_note:    hash[:is_note] })
+    obj = Message.create
     obj.diagram = Diagram.current(request)
-    obj.save
+    obj.from = create_instance(hash[:from])
+    obj.to = create_instance(hash[:to])
+    obj.body = hash[:body]
+    obj.order = Message.next_order(request)
+    obj.is_return = hash[:is_return]
+    obj.is_note = hash[:is_note]
+    obj.save!
     obj
   end
 end
