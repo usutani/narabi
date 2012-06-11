@@ -1,11 +1,6 @@
 Narabi::Application.routes.draw do
-  resources :diagrams
-
-  root :to => "home#index"
+  root :to => 'home#index'
   match 'home/delete_all' => 'home#delete_all'
-  match 'home/add_random_instances' => 'home#add_random_instances'
-  match 'home/add_test_items' => 'home#add_test_items'
-  match 'home/add_random_messages' => 'home#add_random_messages'
   match 'home/parse_text' => 'home#parse_text_area'
 
   resources :messages
