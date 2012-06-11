@@ -1,6 +1,6 @@
 class Diagram < ActiveRecord::Base
-  has_many :instances
-  has_many :messages
+  has_many :instances, dependent: :delete_all
+  has_many :messages, dependent: :delete_all
 
   attr_accessible :title
 

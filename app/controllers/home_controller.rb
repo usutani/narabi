@@ -33,10 +33,7 @@ class HomeController < ApplicationController
   end
 
   def delete_all_objects
-    id = Diagram.current(request).id
-    Instance.where(diagram_id: id).delete_all
-    Message.where(diagram_id: id).delete_all
-    Diagram.where(id: id).delete_all
+    Diagram.current(request).delete
   end
 
   def parse_text(text)
