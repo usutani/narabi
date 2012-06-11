@@ -1,5 +1,5 @@
 language: ruby
 rvm:
   - 1.9.2
-script: rake db:migrate
+script: rake db:test:prepare
 script: rake cucumber
