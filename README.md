@@ -1,6 +1,6 @@
 # narabi
 
-[![Build Status](https://secure.travis-ci.org/usutani/narabi.png)](http://travis-ci.org/usutani/narabim)
+[![Build Status](https://secure.travis-ci.org/usutani/narabi.png)](http://travis-ci.org/usutani/narabi)
 
 ## Copyright
 Copyright (c) 2011,2012 Technical Group Laboratory, Inc. See LICENSE for details.
