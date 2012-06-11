@@ -3,4 +3,5 @@ Feature: See Help page
     Given there is a Help page
     When I visit the page for Help
     Then I should see "Messages" title
+    And I should see "Changing the order of instances" title
     And I should see "Back to Home" link
