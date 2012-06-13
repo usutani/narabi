@@ -63,27 +63,22 @@ class HomeController < ApplicationController
 
   def create_instance(name)
     current_diagram = Diagram.current(request)
-    obj = current_diagram.instances.where(name: name).first
-    unless obj
-      obj = Instance.create
+    current_diagram.instances.find_or_create_by_name(name) do |obj|
       obj.diagram = current_diagram
       obj.name = name
+      obj.order ||= Instance.next_order(request)
     end
-    obj.order ||= Instance.next_order(request)
-    obj.save!
-    obj
   end
 
   def create_instances_and_message(hash)
-    obj = Message.create
-    obj.diagram = Diagram.current(request)
-    obj.from = create_instance(hash[:from])
-    obj.to = create_instance(hash[:to])
-    obj.body = hash[:body]
-    obj.order = Message.next_order(request)
-    obj.is_return = hash[:is_return]
-    obj.is_note = hash[:is_note]
-    obj.save!
-    obj
+    Message.create do |obj|
+      obj.diagram = Diagram.current(request)
+      obj.from = create_instance(hash[:from])
+      obj.to = create_instance(hash[:to])
+      obj.body = hash[:body]
+      obj.order = Message.next_order(request)
+      obj.is_return = hash[:is_return]
+      obj.is_note = hash[:is_note]
+    end
   end
 end
