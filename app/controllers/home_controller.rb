@@ -48,7 +48,7 @@ class HomeController < ApplicationController
       return
     end
 
-    if instances = Narabi.parse_line(text)
+    if instances = Narabi::Message.parse_line(text)
       create_instances_and_message(instances)
       return
     end
