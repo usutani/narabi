@@ -37,23 +37,25 @@ class HomeController < ApplicationController
   end
 
   def parse_text(text)
-    text.each_line { |line| parse_instances_and_message line }
+    Narabi::Alias.scope do |parser|
+      text.each_line { |line| parse_instances_and_message(parser, line) }
+    end
   end
 
-  def parse_instances_and_message(text)
+  def parse_instances_and_message(parser, text)
     text.strip!
 
-    if instance = Narabi::Instance.parse_line(text)
+    if instance = parser.parse_line_for_instance(text)
       create_instance(instance[:name].strip)
       return
     end
 
-    if instances = Narabi::Message.parse_line(text)
+    if instances = parser.parse_line_for_message(text)
       create_instances_and_message(instances)
       return
     end
 
-    if diagram = Narabi::Diagram.parse_line(text)
+    if diagram = parser.parse_line_for_diagram(text)
       obj = Diagram.current(request)
       obj.title = diagram[:title].strip
       obj.save
