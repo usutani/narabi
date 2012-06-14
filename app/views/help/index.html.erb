@@ -23,3 +23,16 @@ User->System: Login Request
 System->User: Response</code></pre>
 </p>
 <%= image_tag("order_of_instances.png", :size => "215x220", :alt => "Diagram") %>
+
+<h2>Title and Shortened name</h2>
+<p>
+  <code><pre>title Subject to change w/o notice
+
+instance User as U
+instance Long name System as S
+
+note S: This is a note.
+U->S: Login Request
+S->U: Response</code></pre>
+</p>
+<%= image_tag("title_and_alias.png", :size => "275x240", :alt => "Diagram") %>
