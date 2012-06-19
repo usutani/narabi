@@ -22,3 +22,8 @@ Then /^the system should create following messages:$/ do |table|
     Message.find_by_order(obj[:order]).body.should == obj[:body]
   end
 end
+
+Then /^the diagram title should be <"(.*?)">$/ do |expected_title|
+  Diagram.count.should == 1
+  Diagram.first.title.should == expected_title
+end
