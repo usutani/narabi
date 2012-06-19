@@ -1,14 +1,14 @@
 source 'http://rubygems.org'
 
-gem 'rails', '3.2.5'
+gem 'rails', '3.2.6'
 
 # Bundle edge Rails instead:
 # gem 'rails',     :git => 'git://github.com/rails/rails.git'
 
-gem 'pry', group: :development
-
 group :development, :test do
   gem 'sqlite3'
+  gem 'pry'
+  gem 'brakeman'
 end
 
 group :test do

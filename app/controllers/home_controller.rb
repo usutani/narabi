@@ -75,8 +75,8 @@ class HomeController < ApplicationController
   def create_instances_and_message(hash)
     Message.create do |obj|
       obj.diagram = Diagram.current(request)
-      obj.from = create_instance(hash[:from])
-      obj.to = create_instance(hash[:to])
+      obj.from = create_instance(hash[:from]) #FIXME need to strip name.
+      obj.to = create_instance(hash[:to])     #FIXME need to strip name.
       obj.body = hash[:body]
       obj.order = Message.next_order(request)
       obj.is_return = hash[:is_return]
