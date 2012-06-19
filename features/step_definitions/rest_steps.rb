@@ -2,7 +2,7 @@ Given /^the system knows about the following instances:$/ do |instances|
   get("/")
   Diagram.count.should == 1
   attrs = instances.hashes.map { |a| a.merge(diagram: Diagram.first) }
-  Instance.create!(attrs)
+  Instance.create!(attrs, without_protection: true)
   Instance.count.should == 2
 end
 
