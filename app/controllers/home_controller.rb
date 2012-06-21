@@ -1,4 +1,4 @@
-require 'narabi/parser'
+require 'narabi'
 
 class HomeController < ApplicationController
   before_filter :prepare_diagram
